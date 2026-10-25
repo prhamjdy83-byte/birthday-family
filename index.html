@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#7c3aed">
+  <title>🎂 یادآور تولد خانواده</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  
+  <div id="loading-screen" class="full-screen">
+    <div class="spinner"></div>
+    <p>در حال بارگذاری...</p>
+  </div>
+
+  <div id="auth-view" class="full-screen hidden">
+    <div class="auth-card">
+      <div class="auth-logo">🎂</div>
+      <h1>یادآور تولد خانواده</h1>
+      <p class="subtitle">تولد هیچ‌کس رو فراموش نکن</p>
+      <div class="tabs">
+        <button id="tab-login" class="tab active">ورود</button>
+        <button id="tab-signup" class="tab">ثبت‌نام</button>
+      </div>
+      <form id="auth-form">
+        <div id="name-field" class="field hidden">
+          <label>نام و نام خانوادگی</label>
+          <input type="text" id="auth-name" placeholder="مثلاً علی رضایی">
+        </div>
+        <div class="field">
+          <label>ایمیل</label>
+          <input type="email" id="auth-email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label>رمز عبور</label>
+          <input type="password" id="auth-password" placeholder="حداقل ۶ کاراکتر" required minlength="6">
+        </div>
+        <button type="submit" id="auth-submit" class="btn-primary">ورود</button>
+        <p id="auth-msg" class="msg"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-view" class="hidden">
+    <header class="app-header">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button id="menu-btn" class="btn-icon" title="منو">☰</button>
+        <div>
+          <h1>🎂 یادآور تولد</h1>
+          <p class="user-greeting">سلام، <span id="user-name">کاربر</span>! 👋</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button id="theme-toggle" class="btn-icon" title="تغییر حالت">🌙</button>
+        <button id="logout-btn" class="btn-icon" title="خروج">🚪</button>
+      </div>
+    </header>
+
+    <!-- صفحه خانه -->
+    <main id="page-home" class="page-content">
+      <div id="notif-banner" class="banner hidden">
+        <div>
+          <strong>🔔 نوتیفیکیشن فعال کن</strong>
+          <p>برای دریافت یادآوری، اجازه بده</p>
+        </div>
+        <button id="enable-notif-btn" class="btn-primary">فعال‌سازی</button>
+      </div>
+      <div id="notif-enabled" class="banner success hidden">✅ نوتیفیکیشن فعاله — یادآوری‌ها رو دریافت می‌کنی</div>
+
+      <div id="countdown-banner" class="countdown-banner hidden">
+        <div class="countdown-header">
+          <span>⏳ تا تولد</span>
+          <strong id="cd-name" style="color: var(--secondary); font-size: 18px;">...</strong>
+          <span>مونده!</span>
+        </div>
+        <div class="countdown-timer" id="countdown-timer-content">
+          <div class="cd-box"><span id="cd-days">۰</span><small>روز</small></div>
+          <div class="cd-box"><span id="cd-hours">۰</span><small>ساعت</small></div>
+          <div class="cd-box"><span id="cd-mins">۰</span><small>دقیقه</small></div>
+          <div class="cd-box"><span id="cd-secs">۰</span><small>ثانیه</small></div>
+        </div>
+      </div>
+
+      <button id="add-bday-btn" class="btn-primary btn-add hidden">➕ افزودن تولد</button>
+      <input type="search" id="search-input" class="search-input" placeholder="🔍 جستجو با نام...">
+
+      <section><h2>🎉 امروز</h2><div id="today-list" class="cards"></div></section>
+      <section><h2>📅 ۷ روز آینده</h2><div id="week-list" class="cards"></div></section>
+      <section><h2>🗓️ این ماه</h2><div id="month-list" class="cards"></div></section>
+      <section><h2>👨‍👩‍👧‍👦 همه تولدها</h2><div id="all-list" class="cards"></div></section>
+    </main>
+
+    <!-- ================= صفحه تقویم ماهانه ================= -->
+    <div id="page-calendar" class="page-content hidden">
+      <div class="settings-card">
+        <h2>📅 تقویم تولدها</h2>
+        <div class="calendar-header">
+          <button id="prev-month-btn" class="btn-icon">❮</button>
+          <h3 id="calendar-month-title">فروردین ۱۴۰۳</h3>
+          <button id="next-month-btn" class="btn-icon">❯</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+    </div>
+
+    <!-- ================= صفحه مقایسه دو نفر ================= -->
+    <div id="page-compare" class="page-content hidden">
+      <div class="settings-card">
+        <h2>🎯 مقایسه دو نفر</h2>
+        <div class="compare-selectors">
+          <div class="field">
+            <label>نفر اول</label>
+            <select id="compare-person-1" class="horo-selector select"></select>
+          </div>
+          <div class="field">
+            <label>نفر دوم</label>
+            <select id="compare-person-2" class="horo-selector select"></select>
+          </div>
+        </div>
+        <button id="compare-btn" class="btn-primary">مقایسه کن</button>
+        <div id="compare-result" class="compare-result-box hidden">
+          <div class="compare-icon">🆚</div>
+          <h3 id="compare-title">نتیجه مقایسه</h3>
+          <p id="compare-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحه لیست تولدها -->
+    <div id="page-birthdays" class="page-content hidden">
+      <div class="settings-card" style="max-width: 100%; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="margin-bottom: 0;">📋 لیست کامل تولدها</h2>
+          <button id="add-bday-btn-table" class="btn-primary btn-add hidden" style="width: auto; padding: 10px 15px; font-size: 14px;">➕ افزودن</button>
+        </div>
+        <div class="table-responsive">
+          <table class="birthday-table">
+            <thead>
+              <tr>
+                <th>نام</th><th>تاریخ تولد</th><th>سن</th><th>روز مانده</th><th>برج</th>
+              </tr>
+            </thead>
+            <tbody id="birthdays-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحه محاسبه سن دقیق -->
+    <div id="page-age-calculator" class="page-content hidden">
+      <div class="age-container settings-card">
+        <h2>⏱️ محاسبه سن دقیق</h2>
+        <p class="subtitle" style="margin-bottom: 25px;">تاریخ تولدت رو وارد کن تا بفهمی دقیقاً چند وقتته به دنیا اومدی!</p>
+        <div class="field" style="max-width: 400px; margin: 0 auto 20px auto;">
+          <label>تاریخ تولد (شمسی)</label>
+          <input type="text" id="age-input" placeholder="۱۳۷۰/۰۵/۱۵">
+          <small id="age-preview" class="hint"></small>
+        </div>
+        <button id="calc-age-btn" class="btn-primary" style="max-width: 400px; margin: 0 auto;">محاسبه کن</button>
+        <div id="age-result-box" class="age-result-box hidden">
+          <h3>شما دقیقاً زنده بوده‌اید به مدت:</h3>
+          <div class="age-grid">
+            <div class="age-box"><span id="age-years">۰</span><small>سال</small></div>
+            <div class="age-box"><span id="age-months">۰</span><small>ماه</small></div>
+            <div class="age-box"><span id="age-days">۰</span><small>روز</small></div>
+            <div class="age-box"><span id="age-hours">۰</span><small>ساعت</small></div>
+            <div class="age-box"><span id="age-mins">۰</span><small>دقیقه</small></div>
+            <div class="age-box"><span id="age-secs">۰</span><small>ثانیه</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحه پروفایل -->
+    <div id="page-profile" class="page-content hidden">
+      <div class="settings-card">
+        <h2>👤 پروفایل من</h2>
+        <div class="profile-header-section">
+          <div class="profile-avatar" id="profile-avatar-char">👤</div>
+          <h3 id="profile-display-name">نام کاربر</h3>
+          <p id="profile-display-email">email@example.com</p>
+          <span class="profile-role-badge" id="profile-role-badge">کاربر</span>
+        </div>
+        <div class="profile-form-section">
+          <h4>✏️ تغییر نام نمایشی</h4>
+          <form id="change-name-form">
+            <div class="field"><input type="text" id="new-name-input" required placeholder="نام جدید را وارد کنید"></div>
+            <button type="submit" class="btn-primary" id="save-name-btn">ذخیره نام</button>
+          </form>
+        </div>
+        <div class="profile-form-section">
+          <h4>🔒 تغییر رمز عبور</h4>
+          <form id="change-password-form">
+            <div class="field"><input type="password" id="new-password-input" required minlength="6" placeholder="رمز جدید (حداقل ۶ کاراکتر)"></div>
+            <button type="submit" class="btn-primary" id="save-pass-btn" style="background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-color: #b45309;">تغییر رمز</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحه پنل ادمین -->
+    <div id="page-admin" class="page-content hidden">
+      <div class="settings-card" style="max-width: 100%; padding: 25px;">
+        <h2>👑 پنل مدیریت</h2>
+        
+        <div class="admin-stats-grid">
+          <div class="stat-card"><span class="stat-icon">👥</span><div><p>کل کاربران</p><h3 id="stat-total-users">۰</h3></div></div>
+          <div class="stat-card"><span class="stat-icon">🎂</span><div><p>کل تولدها</p><h3 id="stat-total-bdays">۰</h3></div></div>
+          <div class="stat-card"><span class="stat-icon">👑</span><div><p>تعداد ادمین‌ها</p><h3 id="stat-total-admins">۰</h3></div></div>
+        </div>
+
+        <!-- نمودارها -->
+        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div class="chart-container">
+            <h4 style="text-align:center; margin-bottom: 10px; font-size:14px; color:var(--text-muted);">توزیع برج‌ها</h4>
+            <canvas id="chart-zodiac"></canvas>
+          </div>
+          <div class="chart-container">
+            <h4 style="text-align:center; margin-bottom: 10px; font-size:14px; color:var(--text-muted);">تولدها در ماه‌های سال</h4>
+            <canvas id="chart-months"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+          <h3 style="margin-bottom: 15px; font-size: 18px;">مدیریت کاربران</h3>
+          <div class="table-responsive">
+            <table class="birthday-table admin-table">
+              <thead><tr><th>نام</th><th>نقش</th><th>عملیات</th></tr></thead>
+              <tbody id="admin-users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 2px dashed var(--border-color); padding-top: 25px;">
+          <h3 style="margin-bottom: 15px; font-size: 18px;">➕ تعریف کاربر جدید</h3>
+          <form id="create-user-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 400px;">
+            <div class="field"><label>ایمیل</label><input type="email" id="create-user-email" required></div>
+            <div class="field"><label>رمز عبور</label><input type="text" id="create-user-password" required></div>
+            <div class="field"><label>نام نمایشی</label><input type="text" id="create-user-name" required></div>
+            <button type="submit" class="btn-primary" id="create-user-btn" style="background: linear-gradient(180deg, #10b981 0%, #059669 100%); border-color: #047857;">ساخت کاربر</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحه فال حافظ -->
+    <div id="page-hafez" class="page-content hidden">
+      <div class="hafez-container">
+        <div class="hafez-header"><div class="hafez-icon">📖</div><h2>فال حافظ</h2><p>لسان‌الغیب</p></div>
+        <div class="hafez-instructions">
+          <h3>✨ آیین نیت کردن</h3>
+          <ul>
+            <li><b>۱.</b> ابتدا در دل خود <b>نیت</b> کنید.</li>
+            <li><b>۲.</b> چشم‌ها را بسته و ۳ بار <b>صلوات</b> بفرستید.</li>
+            <li><b>۳.</b> به حضرت حافظ توسل پیدا کنید.</li>
+            <li><b>۴.</b> سپس این شعر را زمزمه کنید:<blockquote class="hafez-quote">ای حافظ شیرازی، تو محرم هر رازی<br>به حق آن خدایی که بر ما ببخشی<br>به حق آن خدایی که زمین و آسمان را آفرید<br>به حق پیغمبر و قرآن<br>به حق امیرالمؤمنین علی (ع)<br>به حق فاطمه زهرا (س)<br>به حق امام حسین (ع)</blockquote></li>
+          </ul>
+        </div>
+        <button id="get-hafez-btn" class="btn-hafez">🔮 نیت کردم، فال بگیر!</button>
+        <div id="hafez-result" class="hafez-box hidden">
+          <div class="hafez-poem-container"><p class="poem-text" id="hafez-poem"></p></div>
+          <div class="hafez-meaning-container"><h4>تعبیر فال شما:</h4><p class="meaning-text" id="hafez-meaning"></p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحه طالع بینی -->
+    <div id="page-horoscope" class="page-content hidden">
+      <div class="horoscope-container">
+        <div class="horo-header"><div class="hafez-icon">🔮</div><h2>طالع بینی</h2><p>آینده‌ات رو کشف کن</p></div>
+        <div class="horo-tabs">
+          <button id="tab-horo-month" class="horo-tab active" data-mode="month">طالع بینی ماه</button>
+          <button id="tab-horo-year" class="horo-tab" data-mode="year">طالع بینی سال</button>
+        </div>
+        <div class="horo-selector"><label id="horo-select-label">یک ماه را انتخاب کنید:</label><select id="horo-select-box"></select></div>
+        <div id="horo-result-box" class="horo-result-box hidden">
+          <div class="horo-result-icon" id="horo-result-icon">✨</div>
+          <h3 id="horo-result-title">عنوان طالع</h3>
+          <p id="horo-result-text">متن طالع...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- صفحه تنظیمات -->
+    <div id="page-settings" class="page-content hidden">
+      <div class="settings-card">
+        <h2>⚙️ تنظیمات</h2>
+        <div class="setting-item" style="flex-direction: column; align-items: stretch; padding-bottom: 25px;">
+          <div style="margin-bottom: 15px;"><strong>🔔 تنظیمات یادآوری</strong><p>چه زمانی یادآوری بگیری؟</p></div>
+          <form id="notif-settings-form">
+            <div class="field">
+              <label>چند روز قبل از تولد؟</label>
+              <select id="notif-days-select" class="horo-selector select" style="padding: 14px 18px; border-radius: 14px; border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 15px; outline: none;">
+                <option value="0">همون روز تولد</option><option value="1">۱ روز قبل</option><option value="2">۲ روز قبل</option><option value="3">۳ روز قبل</option><option value="7">۱ هفته قبل</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>چه ساعتی؟</label>
+              <select id="notif-hour-select" class="horo-selector select" style="padding: 14px 18px; border-radius: 14px; border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 15px; outline: none;">
+                <option value="8">۸ صبح</option><option value="12">۱۲ ظهر</option><option value="16">۴ عصر</option><option value="18">۶ عصر</option><option value="20">۸ شب</option><option value="21">۹ شب</option><option value="22">۱۰ شب</option><option value="23">۱۱ شب</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;" id="save-notif-settings-btn">ذخیره تنظیمات</button>
+          </form>
+        </div>
+        <div class="setting-item" style="flex-direction: column; align-items: stretch; padding-bottom: 25px; margin-top: 15px;">
+          <div style="margin-bottom: 15px;"><strong>🎨 تم برنامه</strong><p>رنگ‌بندی برنامه رو انتخاب کن</p></div>
+          <div class="theme-options">
+            <button class="theme-option" data-theme-value="light"><span>☀️</span><small>روشن</small></button>
+            <button class="theme-option" data-theme-value="dark"><span>🌙</span><small>تاریک</small></button>
+            <button class="theme-option" data-theme-value="system"><span>💻</span><small>سیستم</small></button>
+          </div>
+        </div>
+        <div class="setting-item" style="border: none; margin-top: 30px; flex-direction: column; text-align: center;"><p style="font-size: 13px; color: var(--text-muted);">نسخه ۱.۰.۰ | ساخته شده با ❤️ برای خانواده</p></div>
+      </div>
+    </div>
+
+    <!-- مودال‌ها -->
+    <div id="bday-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h2 id="modal-title">افزودن تولد</h2>
+        <form id="bday-form">
+          <input type="hidden" id="bday-id">
+          <div class="field"><label>نام</label><input type="text" id="bday-name" required placeholder="مثلاً مادربزرگ"></div>
+          <div class="field"><label>تاریخ تولد (شمسی)</label><input type="text" id="bday-persian" required placeholder="۱۳۷۰/۰۵/۱۵"><small id="bday-preview" class="hint"></small></div>
+          <div class="field"><label>عکس (اختیاری)</label><input type="file" id="bday-photo" accept="image/*" style="padding: 10px;"></div>
+          <div class="modal-actions"><button type="button" id="modal-cancel" class="btn-secondary">انصراف</button><button type="submit" class="btn-primary">ذخیره</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="horoscope-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h2 id="horo-name" style="color: var(--primary);">طالع بینی</h2>
+        <div id="horo-content" class="horo-content"></div>
+        <div class="modal-actions"><button type="button" id="horo-close" class="btn-primary">بستن</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- منوی کشویی -->
+  <div id="menu-overlay" class="menu-overlay hidden"></div>
+  <aside id="side-menu" class="side-menu">
+    <div class="side-menu-header"><h2>منوی اصلی</h2><button id="close-menu-btn" class="btn-icon">✖</button></div>
+    <ul class="menu-list">
+      <li><a href="#" class="menu-item active" data-target="page-home"><span>🏠</span> خانه</a></li>
+      <li><a href="#" class="menu-item" data-target="page-calendar"><span>📅</span> تقویم ماهانه</a></li>
+      <li><a href="#" class="menu-item" data-target="page-compare"><span>🎯</span> مقایسه دو نفر</a></li>
+      <li><a href="#" class="menu-item" data-target="page-horoscope"><span>🔮</span> طالع بینی</a></li>
+      <li><a href="#" class="menu-item" data-target="page-hafez"><span>📖</span> فال حافظ</a></li>
+      <li><a href="#" class="menu-item" data-target="page-birthdays"><span>🎂</span> لیست تولدها</a></li>
+      <li><a href="#" class="menu-item" data-target="page-age-calculator"><span>⏱️</span> محاسبه سن دقیق</a></li>
+      <li><a href="#" class="menu-item" data-target="page-profile"><span>👤</span> پروفایل</a></li>
+      <li><a href="#" class="menu-item" data-target="page-settings"><span>⚙️</span> تنظیمات</a></li>
+      <li id="menu-admin-item" class="hidden"><a href="#" class="menu-item" data-target="page-admin" style="color: var(--primary); font-weight: 900;"><span>👑</span> پنل مدیریت</a></li>
+    </ul>
+  </aside>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

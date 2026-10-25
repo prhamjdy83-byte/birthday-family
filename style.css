@@ -1,0 +1,473 @@
+/* =========================================
+   ۱. تنظیمات پایه و متغیرها
+   ========================================= */
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --secondary: #ec4899;
+  --danger: #ef4444;
+  --success: #10b981;
+
+  --bg-base: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+  --card-bg: #ffffff;
+  --input-bg: #f1f5f9;
+  --border-color: #e2e8f0;
+  --card-border: #f1f5f9;
+  --card-shadow: rgba(0, 0, 0, 0.04);
+
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+[data-theme="dark"] {
+  --bg-base: #0f172a;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  --card-bg: #1e293b;
+  --input-bg: #0f172a;
+  --border-color: #334155;
+  --card-border: #334155;
+  --card-shadow: rgba(0, 0, 0, 0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Vazirmatn', Tahoma, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.7;
+  overflow-x: hidden;
+  position: relative;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.hidden { display: none !important; }
+
+/* =========================================
+   ۲. افکت‌های پس‌زمینه
+   ========================================= */
+.blob {
+  position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1;
+  opacity: 0.7; animation: float 12s infinite alternate ease-in-out;
+  pointer-events: none;
+}
+.blob-1 { width: 450px; height: 450px; background: #c7d2fe; top: -150px; right: -100px; }
+.blob-2 { width: 350px; height: 350px; background: #fbcfe8; bottom: -100px; left: -100px; animation-delay: -5s; }
+.blob-3 { width: 400px; height: 400px; background: #bfdbfe; top: 40%; left: 20%; animation-duration: 18s; }
+
+[data-theme="dark"] .blob { opacity: 0.25; }
+[data-theme="dark"] .blob-1 { background: #4338ca; }
+[data-theme="dark"] .blob-2 { background: #be185d; }
+[data-theme="dark"] .blob-3 { background: #1d4ed8; }
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 60px) scale(1.1); }
+}
+
+/* =========================================
+   ۳. لودینگ و ورود
+   ========================================= */
+.full-screen {
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px 16px;
+}
+.spinner {
+  width: 50px; height: 50px; border: 4px solid rgba(99, 102, 241, 0.2);
+  border-top-color: var(--primary); border-radius: 50%;
+  animation: spin 1s linear infinite; margin-bottom: 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.auth-card {
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border); border-radius: 28px; padding: 45px 35px;
+  width: 100%; max-width: 440px; box-shadow: var(--glass-shadow); text-align: center;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+.auth-logo { font-size: 70px; margin-bottom: 15px; animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.auth-card h1 { font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.subtitle { color: var(--text-muted); font-size: 15px; margin-bottom: 30px; font-weight: 500; }
+
+/* =========================================
+   ۴. فرم‌ها و دکمه‌ها
+   ========================================= */
+.field { text-align: right; margin-bottom: 20px; }
+.field label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+.field input, .field textarea {
+  width: 100%; padding: 15px 18px; border: 2px solid transparent; border-radius: 14px;
+  font-family: inherit; font-size: 16px; outline: none; background: var(--input-bg); color: var(--text-main);
+  transition: var(--transition); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+.field input:focus, .field textarea:focus { border-color: var(--primary); background: var(--card-bg); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
+.hint { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; }
+.hint.success { color: var(--success); }
+.hint.error { color: var(--danger); }
+.msg { margin-top: 15px; font-size: 14px; font-weight: 600; text-align: center; }
+.msg.success { color: var(--success); }
+.msg.error { color: var(--danger); }
+
+.tabs { display: flex; gap: 8px; background: var(--input-bg); padding: 6px; border-radius: 16px; margin-bottom: 28px; }
+.tab { flex: 1; padding: 12px; background: transparent; border: none; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+.tab.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.08); transform: scale(1.02); }
+
+.btn-primary {
+  width: 100%; padding: 16px; background: linear-gradient(180deg, #7c3aed 0%, #4f46e5 100%);
+  color: #fff; border: 1px solid #4338ca; border-radius: 14px; font-family: inherit; font-size: 16px; font-weight: 800;
+  cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 6px 20px -5px rgba(79, 70, 229, 0.5), inset 0 1px 1px rgba(255,255,255,0.4);
+  transition: var(--transition);
+}
+.btn-primary:hover { background: linear-gradient(180deg, #8b5cf6 0%, #4338ca 100%); transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.btn-add { width: 100%; margin-bottom: 28px; padding: 18px; font-size: 18px; background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%); border-radius: 50px; border: 1px solid #be123c; box-shadow: 0 8px 25px -5px rgba(225, 29, 72, 0.6); }
+.btn-add:hover { box-shadow: 0 12px 30px -5px rgba(225, 29, 72, 0.8); transform: translateY(-3px); }
+.btn-icon { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); width: 50px; height: 50px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: 0 4px 15px var(--glass-shadow); transition: var(--transition); }
+.btn-icon:hover { background: var(--input-bg); color: var(--primary); transform: translateY(-3px) rotate(5deg); border-color: var(--primary); }
+.btn-secondary { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-color); transition: var(--transition); }
+.btn-secondary:hover { background: var(--border-color); color: var(--text-main); }
+
+/* =========================================
+   ۵. هدر و جستجو
+   ========================================= */
+#app-view { max-width: 900px; margin: 0 auto; padding: 30px 20px 80px; position: relative; z-index: 1; }
+.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 15px; }
+.app-header h1 { font-size: 24px; font-weight: 900; color: var(--text-main); }
+.user-greeting { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-top: 4px; }
+.search-input { width: 100%; padding: 16px 24px; border: 1px solid var(--border-color); border-radius: 16px; font-family: inherit; font-size: 16px; outline: none; margin-bottom: 30px; background: var(--input-bg); color: var(--text-main); transition: var(--transition); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+.search-input:focus { border-color: var(--primary); background: var(--card-bg); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
+
+/* =========================================
+   ۶. بنرها و شمارش معکوس
+   ========================================= */
+.banner { background: var(--glass-bg); backdrop-filter: blur(16px); border-radius: 20px; padding: 20px 24px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; gap: 20px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
+.banner.success { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--success); justify-content: center; font-weight: 800; }
+.banner strong { display: block; font-size: 16px; color: var(--text-main); margin-bottom: 4px; }
+.banner p { font-size: 14px; color: var(--text-muted); }
+.banner .btn-primary { width: auto; padding: 10px 24px; font-size: 14px; border-radius: 12px; }
+
+.countdown-banner { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 28px; text-align: center; box-shadow: var(--glass-shadow); animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.countdown-header { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
+.countdown-timer { display: flex; justify-content: center; gap: 12px; }
+.cd-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px 15px; min-width: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: var(--transition); }
+.cd-box:hover { transform: translateY(-3px); border-color: var(--primary); }
+.cd-box span { font-size: 24px; font-weight: 900; color: var(--primary); line-height: 1.2; font-variant-numeric: tabular-nums; }
+.cd-box small { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+[data-theme="dark"] .cd-box { background: rgba(15, 23, 42, 0.6); }
+.countdown-banner.today-mode { background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(245,158,11,0.1)); border-color: rgba(245,158,11,0.3); }
+.countdown-banner.today-mode .countdown-timer { font-size: 22px; font-weight: 900; color: #d97706; padding: 10px; }
+
+/* =========================================
+   ۷. کارت‌های تولد
+   ========================================= */
+section { margin-bottom: 40px; }
+section h2 { font-size: 19px; font-weight: 900; color: var(--text-main); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+.card { background: var(--card-bg); border-radius: 24px; display: flex; flex-direction: column; box-shadow: 0 10px 30px -10px var(--card-shadow); border: 1px solid var(--card-border); position: relative; transition: var(--transition); overflow: hidden; }
+.card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.25); border-color: var(--primary); }
+.card-header { height: 150px; background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(236, 72, 153, 0.2)); display: flex; align-items: center; justify-content: center; position: relative; }
+.card-photo { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid var(--card-bg); box-shadow: 0 8px 20px rgba(0,0,0,0.15); position: absolute; bottom: -45px; background: linear-gradient(135deg, #a78bfa, #ec4899); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 40px; }
+.card-body { padding: 55px 20px 20px 20px; display: flex; flex-direction: column; flex: 1; }
+.name-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px dashed var(--border-color); padding-bottom: 15px; }
+.name-row h3 { font-size: 20px; font-weight: 900; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: right; margin-bottom: 15px; }
+.detail-item { font-size: 13px; font-weight: 600; color: var(--text-muted); background: var(--input-bg); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; gap: 6px; }
+.detail-item span { font-size: 16px; }
+.badge { font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 30px; background: var(--input-bg); color: var(--text-muted); white-space: nowrap; }
+.badge.today { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); animation: pulse 1.5s infinite; }
+.badge.soon { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+.card-actions { position: absolute; top: 15px; left: 15px; display: flex; gap: 8px; }
+.card-actions button { border: 1px solid transparent; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: var(--transition); backdrop-filter: blur(10px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+.card-actions .edit-btn { background: rgba(255, 255, 255, 0.8); color: #3b82f6; }
+.card-actions .edit-btn:hover { background: #3b82f6; color: #fff; transform: scale(1.1); }
+.card-actions .del-btn { background: rgba(255, 255, 255, 0.8); color: #ef4444; }
+.card-actions .del-btn:hover { background: #ef4444; color: #fff; transform: scale(1.1); }
+[data-theme="dark"] .card-actions .edit-btn { background: rgba(0,0,0,0.5); }
+[data-theme="dark"] .card-actions .del-btn { background: rgba(0,0,0,0.5); }
+.empty { color: var(--text-muted); font-size: 14px; font-weight: 500; padding: 10px 0; }
+
+/* =========================================
+   ۸. دکمه طالع بینی و مودال
+   ========================================= */
+.btn-horoscope { width: 100%; margin-top: auto; padding: 12px; background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; border: none; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-horoscope:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(168, 85, 247, 0.6); }
+.horo-content { text-align: right; font-size: 14px; line-height: 1.8; color: var(--text-main); }
+.horo-section { background: var(--input-bg); padding: 15px; border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border-color); }
+.horo-section h3 { font-size: 15px; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 100; overflow-y: auto; }
+.modal { background: var(--card-bg); border-radius: 28px; padding: 35px; width: 100%; max-width: 440px; animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 1px solid var(--border-color); margin: auto; }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.modal h2 { font-size: 24px; font-weight: 900; color: var(--text-main); margin-bottom: 24px; text-align: center; }
+.modal-actions { display: flex; gap: 12px; margin-top: 28px; }
+.modal-actions button { flex: 1; padding: 15px; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; }
+
+/* =========================================
+   ۹. منوی کشویی
+   ========================================= */
+.menu-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition); }
+.menu-overlay.active { opacity: 1; visibility: visible; }
+.side-menu { position: fixed; top: 0; right: -300px; width: 280px; height: 100vh; background: var(--card-bg); z-index: 1001; box-shadow: -10px 0 30px rgba(0,0,0,0.1); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+.side-menu.active { transform: translateX(-300px); }
+.side-menu-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-color); }
+.side-menu-header h2 { font-size: 18px; font-weight: 900; color: var(--text-main); }
+.menu-list { list-style: none; padding: 10px 0; overflow-y: auto; flex: 1; }
+.menu-item { display: flex; align-items: center; gap: 12px; padding: 15px 20px; color: var(--text-main); text-decoration: none; font-weight: 700; font-size: 15px; transition: var(--transition); border-right: 4px solid transparent; }
+.menu-item:hover { background: var(--input-bg); color: var(--primary); }
+.menu-item.active { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-right-color: var(--primary); }
+.menu-item span { font-size: 20px; }
+
+/* =========================================
+   ۱۰. صفحات (پروفایل، تنظیمات، جدول تولدها)
+   ========================================= */
+.settings-card {
+  background: var(--glass-bg); backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border); border-radius: 24px;
+  padding: 30px; box-shadow: var(--glass-shadow);
+  max-width: 600px; margin: 0 auto;
+}
+.settings-card h2 { font-size: 22px; font-weight: 900; margin-bottom: 25px; text-align: center; }
+
+/* پروفایل */
+.profile-header-section { text-align: center; margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid var(--border-color); }
+.profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; margin: 0 auto 15px auto; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); }
+.profile-header-section h3 { font-size: 20px; font-weight: 800; margin-bottom: 5px; }
+.profile-header-section p { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; }
+.profile-role-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; background: var(--input-bg); color: var(--text-main); font-size: 13px; font-weight: 700; border: 1px solid var(--border-color); }
+.profile-form-section { margin-bottom: 25px; }
+.profile-form-section h4 { font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+/* تنظیمات */
+.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
+.setting-item strong { font-size: 16px; color: var(--text-main); display: block; margin-bottom: 4px; }
+.setting-item p { font-size: 13px; color: var(--text-muted); }
+
+/* جدول لیست تولدها */
+.table-responsive {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+}
+.birthday-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+}
+.birthday-table th, .birthday-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+.birthday-table th {
+  background: var(--input-bg);
+  font-weight: 800;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.birthday-table td {
+  font-size: 14px;
+  color: var(--text-main);
+  vertical-align: middle;
+}
+.birthday-table tr:last-child td { border-bottom: none; }
+.birthday-table tr:hover { background: rgba(99, 102, 241, 0.03); }
+[data-theme="dark"] .birthday-table tr:hover { background: rgba(99, 102, 241, 0.1); }
+
+.bd-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 800; }
+.bd-badge.today { background: #fef3c7; color: #b45309; }
+.bd-badge.soon { background: #dbeafe; color: #1d4ed8; }
+.bd-badge.normal { background: var(--input-bg); color: var(--text-muted); }
+[data-theme="dark"] .bd-badge.today { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+[data-theme="dark"] .bd-badge.soon { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+
+/* =========================================
+   ۱۱. فال حافظ
+   ========================================= */
+.hafez-container { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 40px 30px; box-shadow: var(--glass-shadow); max-width: 700px; margin: 0 auto; text-align: center; animation: slideUp 0.6s ease; }
+.hafez-header { margin-bottom: 30px; }
+.hafez-icon { font-size: 50px; margin-bottom: 10px; animation: float 3s infinite ease-in-out; }
+.hafez-header h2 { font-size: 28px; font-weight: 900; color: var(--primary); margin-bottom: 5px; }
+.hafez-header p { font-size: 14px; color: var(--text-muted); }
+.hafez-instructions { background: var(--card-bg); border: 1px dashed var(--border-color); border-radius: 20px; padding: 25px; margin-bottom: 30px; text-align: right; }
+.hafez-instructions h3 { font-size: 16px; font-weight: 800; color: var(--secondary); margin-bottom: 15px; }
+.hafez-instructions ul { list-style: none; padding-right: 0; }
+.hafez-instructions li { font-size: 14px; color: var(--text-main); margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; line-height: 1.8; }
+.hafez-instructions li::before { content: "✨"; font-size: 12px; }
+.hafez-quote { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 15px 20px; margin-top: 10px; margin-bottom: 0; font-size: 14px; font-weight: 700; color: #b45309; text-align: center; font-style: italic; line-height: 2.2; box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.05); }
+[data-theme="dark"] .hafez-quote { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.btn-hafez { width: 100%; max-width: 300px; margin: 0 auto; padding: 18px 24px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 2px solid #047857; border-radius: 50px; font-family: inherit; font-size: 17px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-hafez:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6); background: linear-gradient(135deg, #34d399, #10b981); }
+.btn-hafez:active { transform: translateY(1px); }
+.hafez-box { margin-top: 40px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 24px; padding: 0; overflow: hidden; text-align: right; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.hafez-poem-container { background: rgba(99, 102, 241, 0.05); padding: 30px; border-bottom: 2px dashed var(--border-color); text-align: center; }
+.poem-text { font-size: 20px; font-weight: 800; line-height: 2.2; color: var(--primary); white-space: pre-line; text-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.hafez-meaning-container { padding: 25px 30px; }
+.hafez-meaning-container h4 { font-size: 15px; font-weight: 900; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.hafez-meaning-container h4::before { content: "🪶"; }
+.meaning-text { font-size: 15px; line-height: 1.9; color: var(--text-main); background: var(--input-bg); padding: 15px 20px; border-radius: 14px; }
+
+/* =========================================
+   ۱۲. طالع بینی
+   ========================================= */
+.horoscope-container { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 40px 30px; box-shadow: var(--glass-shadow); max-width: 600px; margin: 0 auto; text-align: center; animation: slideUp 0.6s ease; }
+.horo-header { margin-bottom: 25px; }
+.horo-header h2 { font-size: 28px; font-weight: 900; color: var(--primary); margin-bottom: 5px; }
+.horo-header p { font-size: 14px; color: var(--text-muted); }
+.horo-tabs { display: flex; gap: 8px; background: var(--input-bg); padding: 6px; border-radius: 16px; margin-bottom: 25px; }
+.horo-tab { flex: 1; padding: 12px; background: transparent; border: none; border-radius: 12px; font-family: inherit; font-size: 15px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: var(--transition); }
+.horo-tab.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.08); transform: scale(1.02); }
+.horo-selector { text-align: right; margin-bottom: 25px; }
+.horo-selector label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+.horo-selector select { width: 100%; padding: 14px 18px; border: 2px solid var(--border-color); border-radius: 14px; font-family: inherit; font-size: 16px; font-weight: 600; background: var(--card-bg); color: var(--text-main); cursor: pointer; outline: none; transition: var(--transition); appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: left 15px center; background-size: 18px; }
+.horo-selector select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
+.horo-result-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px; text-align: right; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px -10px var(--card-shadow); }
+.horo-result-icon { font-size: 40px; text-align: center; margin-bottom: 15px; }
+.horo-result-box h3 { font-size: 18px; font-weight: 900; color: var(--primary); margin-bottom: 15px; text-align: center; border-bottom: 2px dashed var(--border-color); padding-bottom: 15px; }
+.horo-result-box p { font-size: 15px; line-height: 1.9; color: var(--text-main); background: var(--input-bg); padding: 15px 20px; border-radius: 14px; }
+
+/* =========================================
+   ۱۳. تم‌ها
+   ========================================= */
+.theme-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.theme-option { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 18px 10px; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 16px; cursor: pointer; transition: var(--transition); font-family: inherit; color: var(--text-main); }
+.theme-option:hover { border-color: var(--primary); transform: translateY(-3px); background: var(--card-bg); }
+.theme-option.active { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
+.theme-option span { font-size: 30px; line-height: 1; }
+.theme-option small { font-size: 12px; font-weight: 800; }
+
+/* =========================================
+   ۱۴. پنل ادمین
+   ========================================= */
+.admin-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+.stat-card { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: var(--transition); }
+.stat-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.2); }
+.stat-icon { font-size: 36px; background: var(--card-bg); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.stat-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 2px; font-weight: 600; }
+.stat-card h3 { font-size: 24px; font-weight: 900; color: var(--text-main); }
+.admin-table td { vertical-align: middle; }
+.role-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; }
+.role-badge.admin { background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.3); }
+.role-badge.user { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-color); }
+.action-btn-small { padding: 8px 12px; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; border: 1px solid transparent; transition: var(--transition); }
+.action-btn-small.toggle { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-color: rgba(99, 102, 241, 0.2); }
+.action-btn-small.toggle:hover { background: var(--primary); color: #fff; }
+.action-btn-small.delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2); }
+.action-btn-small.delete:hover { background: #ef4444; color: #fff; }
+
+/* =========================================
+   ۱۵. محاسبه سن دقیق
+   ========================================= */
+.age-container { text-align: center; }
+.age-container .field { text-align: right; }
+.age-result-box { margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--border-color); animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.age-result-box h3 { font-size: 16px; color: var(--text-muted); margin-bottom: 20px; }
+.age-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.age-box { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: var(--transition); }
+.age-box:hover { border-color: var(--primary); transform: translateY(-3px); background: var(--card-bg); }
+.age-box span { font-size: 24px; font-weight: 900; color: var(--primary); line-height: 1.2; }
+.age-box small { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+
+/* =========================================
+   ۱۶. تقویم ماهانه
+   ========================================= */
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.calendar-header h3 { font-size: 18px; font-weight: 900; color: var(--primary); }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  background: var(--input-bg);
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+}
+.cal-day-name {
+  text-align: center; font-size: 12px; font-weight: 800; color: var(--text-muted);
+  padding-bottom: 10px; border-bottom: 1px dashed var(--border-color); margin-bottom: 5px;
+}
+.cal-day {
+  aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--card-bg); border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--text-main);
+  position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: var(--transition);
+}
+.cal-day.empty { background: transparent; box-shadow: none; }
+.cal-day.today { border: 2px solid var(--primary); color: var(--primary); }
+.cal-day.has-bday { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); }
+.cal-day.has-bday::after { content: "🎂"; font-size: 14px; position: absolute; bottom: 2px; }
+.cal-day.has-bday span { transform: translateY(-5px); }
+
+/* =========================================
+   ۱۷. مقایسه دو نفر
+   ========================================= */
+.compare-selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+.compare-result-box { margin-top: 25px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 25px; text-align: center; animation: slideUp 0.5s ease; }
+.compare-icon { font-size: 40px; margin-bottom: 10px; }
+.compare-result-box h3 { font-size: 18px; color: var(--primary); margin-bottom: 15px; border-bottom: 2px dashed var(--border-color); padding-bottom: 10px; }
+.compare-result-box p { font-size: 15px; line-height: 1.8; font-weight: 600; color: var(--text-main); }
+
+/* =========================================
+   ۱۸. نمودارها
+   ========================================= */
+.chart-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 250px; position: relative; }
+
+/* =========================================
+   ۱۹. ریسپانسیو
+   ========================================= */
+@media (max-width: 768px) {
+  .admin-stats-grid { grid-template-columns: 1fr; }
+  .age-grid { grid-template-columns: repeat(3, 1fr); }
+  .compare-selectors { grid-template-columns: 1fr; }
+  .chart-container { height: 200px; }
+}
+@media (max-width: 480px) {
+  .auth-card { padding: 35px 25px; }
+  .cards { grid-template-columns: 1fr; }
+  .details-grid { grid-template-columns: 1fr; }
+  .card-header { height: 130px; }
+  .card-photo { width: 90px; height: 90px; font-size: 32px; bottom: -35px; }
+  .card-body { padding: 45px 15px 15px 15px; }
+  .banner { flex-direction: column; text-align: center; }
+  .banner .btn-primary { width: 100%; }
+  .app-header h1 { font-size: 20px; }
+  .btn-icon { width: 44px; height: 44px; font-size: 20px; }
+  .btn-add { font-size: 16px; padding: 16px; }
+  .modal { padding: 25px 20px; }
+  .cd-box { min-width: 60px; padding: 8px 10px; }
+  .cd-box span { font-size: 20px; }
+  .cd-box small { font-size: 10px; }
+  .countdown-header { font-size: 14px; flex-wrap: wrap; }
+  .side-menu { width: 260px; right: -260px; }
+  .side-menu.active { transform: translateX(-260px); }
+  .settings-card, .hafez-container, .horoscope-container { padding: 25px 15px; }
+  .hafez-poem-container { padding: 20px 15px; }
+  .poem-text { font-size: 17px; }
+  .hafez-quote { font-size: 12px; padding: 10px; }
+  .birthday-table th, .birthday-table td { padding: 10px 12px; font-size: 13px; }
+  .theme-option { padding: 14px 6px; }
+  .theme-option span { font-size: 24px; }
+  .theme-option small { font-size: 11px; }
+  .stat-card { padding: 15px; }
+  .stat-icon { width: 50px; height: 50px; font-size: 28px; }
+  .age-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .age-box span { font-size: 20px; }
+  .cal-day-name { font-size: 10px; }
+  .cal-day { font-size: 12px; }
+  .cal-day.has-bday::after { font-size: 10px; }
+  .cal-day.has-bday span { transform: translateY(-3px); }
+}
